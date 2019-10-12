@@ -28,7 +28,7 @@ EOT
 locals {
   mime_type_mappings = {
     html = "text/html",
-    js   = "application/javascript",
+    js   = "text/javacript",
     css  = "text/css"
   }
 }
@@ -41,6 +41,9 @@ resource "aws_s3_bucket_object" "frontend_object" {
   bucket       = aws_s3_bucket.frontend_bucket.bucket
   etag         = filemd5("${data.external.frontend_build.working_dir}/${data.external.frontend_build.result.dest}/${each.value}")
   content_type = lookup(local.mime_type_mappings, concat(regexall("\\.([^\\.]*)$", each.value), [[""]])[0][0], "application/octet-stream")
+
+  // if you prefer an error if the MIME type is missing from mime_type_mappings
+  // content_type = local.mime_type_mappings[concat(regexall("\\.([^\\.]*)$", each.value), [[""]])[0][0]]
 }
 
 # Boilerplate for the bucket
